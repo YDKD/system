@@ -132,8 +132,19 @@ $categories = xiu_fetch_all('SELECT *FROM categories;');
       // 在表格的任意一个 checkbox 选中状态变化时
       var $tobybox = $('tbody input');
       var $btn_delete = $('#btn_delete');
+
+      // 把被选中的选项框的id记下来，然后再后面的批量删除中可以用到，
+      // tips
+      // 1.还要特别注意变量的本地化，一些结果可以通过定义一个变量来接收（变量的重复使用时用到）
+      var allChecks = [];
       $tobybox.on('change', function(){
-        console.log($(this).data('id'))
+        var id = $(this).data['id'];
+        if($(this).prop('checked')) {
+          allChecks.push(id)
+        } else {
+          allChecks.splice()
+        }
+        // console.log($(this).data('id'))
       })
 
 
