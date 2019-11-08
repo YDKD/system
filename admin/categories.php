@@ -142,7 +142,7 @@ $categories = xiu_fetch_all('SELECT *FROM categories;');
         if($(this).prop('checked')) {
           allChecks.push(id)
         } else {
-          allChecks.splice()
+          allChecks.splice(id);
         }
         // console.log($(this).data('id'))
       })

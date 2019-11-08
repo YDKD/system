@@ -47,6 +47,16 @@ function xiu_query($sql)
 
 
 /**
+ * 封装一个炸桥的函数
+ */
+
+ function xiu_sql_close($sql) {
+     $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
+     $query = xiu_query($sql);
+     mysqli_free_result($query);
+     mysqli_close($conn);
+ }
+/**
  * 通过一个数据库查询获取数据，获取多条数据
   => 索引数组套关联数组
  */
@@ -58,9 +68,9 @@ function xiu_fetch_all($sql)
         $result[] = $row;
     }
 
-
-    mysqli_free_result($query);
-    // mysqli_close($conn);
+    xiu_sql_close($sql);
+    // mysqli_free_result($query);
+    // // mysqli_close($conn);
     return $result;
 }
 
@@ -93,7 +103,8 @@ function xiu_execute($sql)
     // 对于增删修改类的都是获取受影响的行数
     $affected_rows = mysqli_affected_rows($conn);
 
-    mysqli_free_result($query);
-    mysqli_close($conn);
+    xiu_sql_close($sql);
+    // mysqli_free_result($query);
+    // mysqli_close($conn);
     return $affected_rows;
 }
