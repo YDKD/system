@@ -130,21 +130,23 @@ $categories = xiu_fetch_all('SELECT *FROM categories;');
     // 不要使用重复无意义的操作，应该用变量去本地化
     $(function($) {
       // 在表格的任意一个 checkbox 选中状态变化时
-      var $tobybox = $('tbody input');
+      var $tobyCheckbox = $('tbody input');
       var $btn_delete = $('#btn_delete');
 
       // 把被选中的选项框的id记下来，然后再后面的批量删除中可以用到，
       // tips
       // 1.还要特别注意变量的本地化，一些结果可以通过定义一个变量来接收（变量的重复使用时用到）
-      var allChecks = [];
-      $tobybox.on('change', function(){
-        var id = $(this).data['id'];
+      var allCheckeds = [];
+      $tobyCheckbox.on('change', function(){
+        var id = $(this).data('id');
         if($(this).prop('checked')) {
-          allChecks.push(id)
+          allCheckeds.push(id)
         } else {
-          allChecks.splice(id);
+          allCheckeds.splice(allCheckeds.indexOf(id), 1);
         }
-        // console.log($(this).data('id'))
+        
+        // 可以通过数组的长度是否为空来判断批量按钮的显示和隐藏
+        allCheckeds.length ? $btn_delete.fadeIn() : $btn_delete.fadeOut();
       })
 
 
