@@ -40,7 +40,6 @@ function edit_category () {
   //   $GLOBALS['success'] = false;
   //   return;
   // }
-    echo '测试';
   // 接收并保存
   $id = $current_edit_category['id'];
   $name = empty($_POST['name']) ? $current_edit_category['name'] : $_POST['name'];
@@ -49,20 +48,28 @@ function edit_category () {
   $current_edit_category['slug'] = $slug;
 
   // insert into categories values (null, 'slug', 'name');
-  $rows = xiu_execute("update categories set slug = '{$slug}', name = '{$name}' where id = {$id}");
+  $rows = xiu_execute("UPDATE categories SET slug='{$slug}', NAME='{$name}' WHERE id = {$id}");
 
   $GLOBALS['success'] = $rows > 0;
   $GLOBALS['message'] = $rows <= 0 ? '更新失败！' : '更新成功！';
 }
 
 // 如果修改和查询放在一起的话，一定是先做修改 再查询
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // 一旦是post提交，并且 URL中没有提交过来的 ID ，就代表要添加数据
- if (empty($_GET['id'])) {
-   add_category();
- } else {
-  edit_category();
- }
+// 通过判断 URL 是否传入 ID值来判断主线任务
+if (empty($_GET['id'])) {
+  // 添加
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    add_category();
+  }
+} else {
+  // 编辑
+  // 客户端通过 URL 传递了一个 ID
+  // => 客户端是要来拿一个修改数据的表单
+  // => 需要拿到用户想要修改的数据
+  $current_edit_category = xiu_fetch_one('select * from categories where id = ' . $_GET['id']);
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    edit_category();
+  }
 }
 
 // 查询到categories中的数据
