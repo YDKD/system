@@ -5,106 +5,79 @@ require_once 'config.php';
 /**
  * 封装大家公用的函数
  */
-
 session_start();
-/**
- * 定义函数时，一定要注意：函数名和内置函数冲突的问题
- * JS 判断方式 type fn == 'function'
- * php 判断方式 function_exists('get_current_user') 
- */
+
+// 定义函数时一定要注意：函数名与内置函数冲突问题
+// JS 判断方式：typeof fn === 'function'
+// PHP 判断函数是否定义的方式： function_exists('get_current_user')
 
 /**
- * 获取当前用户登录信息，如果没有获取到则自动跳转到登录页面
+ * 获取当前登录用户信息，如果没有获取到则自动跳转到登录页面
  * @return [type] [description]
  */
-function xiu_get_current_user()
-{
-    if (empty($_SESSION['current_login_user'])) {
-        // 没有当前用户登录的信息
-        header('Location: /admin/login.php');
-        exit(); // 没有哦必要再执行之后的代码
-    }
-    return $_SESSION['current_login_user'];
+function xiu_get_current_user () {
+  if (empty($_SESSION['current_login_user'])) {
+    // 没有当前登录用户信息，意味着没有登录
+    header('Location: /admin/login.php');
+    exit(); // 没有必要再执行之后的代码
+  }
+  return $_SESSION['current_login_user'];
 }
 
-
 /**
- * 封装一个查询函数
+ * 通过一个数据库查询获取多条数据
+ * => 索引数组套关联数组
  */
-function xiu_query($sql)
-{
-    $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
-    if (!$conn) {
-        exit('连接数据库失败');
-    }
-    $query = mysqli_query($conn, $sql);
-    if (!$query) {
-        // 查询失败
-        return false;
-    }
-    return $query;
-}
+function xiu_fetch_all ($sql) {
+  $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
+  if (!$conn) {
+    exit('连接失败');
+  }
 
+  $query = mysqli_query($conn, $sql);
+  if (!$query) {
+    // 查询失败
+    return false;
+  }
 
-/**
- * 封装一个炸桥的函数
- */
+  while ($row = mysqli_fetch_assoc($query)) {
+    $result[] = $row;
+  }
 
- function xiu_sql_close($sql) {
-     $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
-     $query = xiu_query($sql);
-     mysqli_free_result($query);
-     mysqli_close($conn);
- }
-/**
- * 通过一个数据库查询获取数据，获取多条数据
-  => 索引数组套关联数组
- */
-function xiu_fetch_all($sql)
-{
-    $query = xiu_query($sql);
+  mysqli_free_result($query);
+  mysqli_close($conn);
 
-    while ($row = mysqli_fetch_assoc($query)) {
-        $result[] = $row;
-    }
-
-    xiu_sql_close($sql);
-    // mysqli_free_result($query);
-    // // mysqli_close($conn);
-    return $result;
+  return $result;
 }
 
 /**
  * 获取单条数据
-  => 关联数组
+ * => 关联数组
  */
-function xiu_fetch_one($sql)
-{
-    $res = xiu_fetch_all($sql);
-    return isset($res[0]) ? $res[0] : null;
+function xiu_fetch_one ($sql) {
+  $res = xiu_fetch_all($sql);
+  return isset($res[0]) ? $res[0] : null;
 }
+
 /**
- * 执行一个增删改的语句
+ * 执行一个增删改语句
  */
-function xiu_execute($sql)
-{
-    $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
-    if (!$conn) {
-        exit('连接数据库失败');
-    }
+function xiu_execute ($sql) {
+  $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
+  if (!$conn) {
+    exit('连接失败');
+  }
 
-    $query = mysqli_query($conn, $sql);
-    if (!$query) {
-        // 查询失败
-        return false;
-    }
+  $query = mysqli_query($conn, $sql);
+  if (!$query) {
+    // 查询失败
+    return false;
+  }
 
-    // 取到受影响的行数 此处的受影响的应该是这个连接的桥梁所以传入$conn
-    // 对于增删修改类的都是获取受影响的行数
-    $affected_rows = mysqli_affected_rows($conn);
+  // 对于增删修改类的操作都是获取受影响行数
+  $affected_rows = mysqli_affected_rows($conn);
 
-    xiu_sql_close($sql);
-    // mysqli_free_result($query);
-    // mysqli_close($conn);
-    return $affected_rows;
+  mysqli_close($conn);
+
+  return $affected_rows;
 }
