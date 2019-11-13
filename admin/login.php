@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   login();
 }
 
-// 退出功能
+// 退出功能 unset()方法摧毁了这个session 变量
 if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action'])  && $_GET['action'] === 'logout') {
   unset($_SESSION['current_login_user']);
 }
