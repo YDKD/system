@@ -43,6 +43,7 @@ function edit_category () {
   // 接收并保存
   $id = $current_edit_category['id'];
   $name = empty($_POST['name']) ? $current_edit_category['name'] : $_POST['name'];
+  // 数据同步，如果不加这行代码，那么点击修改之后，因为现在的POST提交里面不为空，所以跳转之后，还是显示的是上次的内容
   $current_edit_category['name'] = $name;
   $slug = empty($_POST['slug']) ? $current_edit_category['slug'] : $_POST['slug'];
   $current_edit_category['slug'] = $slug;
@@ -199,7 +200,7 @@ $categories = xiu_fetch_all('SELECT *FROM categories;');
       $tobyCheckbox.on('change', function() {
         var id = $(this).data('id');
         if ($(this).prop('checked')) {
-          allCheckeds.push(id)
+          allCheckeds.includes(id) === -1 || allCheckeds.push(id)
         } else {
           allCheckeds.splice(allCheckeds.indexOf(id), 1);
         }
@@ -209,6 +210,11 @@ $categories = xiu_fetch_all('SELECT *FROM categories;');
         $btn_delete.prop('search', '?id=' + allCheckeds)
       })
 
+      $('thead input').on('change', function(){
+        var cke = $(this).prop('checked')
+        $tobyCheckbox.prop('checked', cke).change()
+        // console.log(111)
+      })
 
       //version-1
       // $tobybox.on('change', function(){
